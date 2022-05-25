@@ -132,6 +132,7 @@ const updateUser = async function (req, res) {
         if (!validation.isValidObjectId(userId)) { return req.status(400).send({ status: false, message: "Invalid UserId" }) }
 
         let data = req.body
+        // let data = JSON.parse(req.body.data)
         let files = req.files
         if (!(validation.isValidRequestBody(data) || files.length > 0)) { return res.status(400).send({ status: false, msg: "please provide  details" }) }
 
@@ -140,25 +141,24 @@ const updateUser = async function (req, res) {
             return res.status(404).send({ status: false, message: "User not found" });
           }
             if (data.fname) {
-                findUser.fname =data.fname
                 if (!validation.isValidString(data.fname)) {
                     return res.status(400).send({ status: false, msg: "Valid First Name is required" })}
             }
 
             if (data.lname) {
-                findUser.lname = data.lname
+
                 if (!validation.isValidString(data.lname)) {return res.status(400).send({ status: false, msg: "Valid last Name is required" })}
             }
 
             if (data.email) {
-                findUser.email = data.email
+
                 if (!validation.pattern1(data.email)) {return res.status(400).send({ status: false, msg: "Valid Email is required" })}
                 let uniqueEmail = await userModel.findOne({ email: data.email });
                 if (uniqueEmail) return res.status(400).send({ status: false, msg: "Email Already Exist" });
             }
 
             if (data.phone) {
-                findUser.phone = data.phone
+
                 if (!validation.pattern2(data.phone)) {return res.status(400).send({ status: false, msg: "phone is required" })}
                 let uniquePhoneNumber = await userModel.findOne({ phone: data.phone });
                 if (uniquePhoneNumber) return res.status(400).send({ status: false, msg: "phone Number Already Exist" });
@@ -168,61 +168,71 @@ const updateUser = async function (req, res) {
                 if (!validation.pattern3(data.password)) {return res.status(400).send({ status: false, msg: "password is required" })}
                 const hashedPassword = await bcrypt.hash(data.password, 10)
                 data["password"] = hashedPassword;
-                findUser.password = data.password
+            
             }
 
             if( req.files){
             let profileImgUrl = await aws.uploadFile(files[0]);                       //getting the AWS-S3 link after uploading the user's profileImage
-            findUser.profileImage = profileImgUrl;
+            data.profileImage = profileImgUrl;
             }
-
+           
             if (data.address) {
-                findUser.address= data.address
+               
                 data.address = JSON.parse(data.address)
-                
+                let newAddress = JSON.parse(JSON.stringify(findUser.address))
+           
                     if(data.address.shipping){
 
                         if(data.address.shipping.street){ 
                          findUser.address.shipping.street = data.address.shipping.street
-                            if(!validation.isValid(data.address.shipping.street)){
-                               return res.status(400).send({ status : false , message : "please provide shipping street address"})}
+                           newAddress.shipping.street = data.address.shipping.street
+                              if(!validation.isValid(data.address.shipping.street)){
+                                return res.status(400).send({ status : false , message : "please provide shipping street address"})}
                             }
 
-                        if(data.address.shipping.city){
+                        if(data.address.shipping.city){ 
                          findUser.address.shipping.city = data.address.shipping.city
-                            if(!validation.isValidString(data.address.shipping.city)){
-                               return res.status(400).send({ status : false , message : "please provide shipping city address"})}
+                           newAddress.shipping.city = data.address.shipping.city
+                              if(!validation.isValid(data.address.shipping.city)){
+                                return res.status(400).send({ status : false , message : "please provide shipping city address"})}
                             }
 
                         if(data.address.shipping.pincode){ 
                          findUser.address.shipping.pincode = data.address.shipping.pincode
-                            if(!validation.isValid(data.address.shipping.pincode)){
+                           newAddress.shipping.pincode = data.address.shipping.pincode
+                              if(!validation.isValid(data.address.shipping.pincode)){
                                 return res.status(400).send({ status : false , message : "please provide shipping pincode address"})}
                             }
                 }
-                    if(data.address.billing){
+                    
+                if(data.address.billing){
 
-                        if(data.address.billing.street){ 
-                            findUser.address.billing.street = data.address.billing.street
-                               if(!validation.isValid(data.address.billing.street)){
-                                  return res.status(400).send({ status : false , message : "please provide billing street address"})}
-                               }
-
-                           if(data.address.billing.city){
-                            findUser.address.billing.city = data.address.billing.city
-                               if(!validation.isValidString(data.address.billing.city)){
-                                  return res.status(400).send({ status : false , message : "please provide billing city address"})}
-                               }
-
-                           if(data.address.billing.pincode){ 
-                            findUser.address.billing.pincode = data.address.billing.pincode
-                               if(!validation.isValid(data.address.billing.pincode)){
-                                   return res.status(400).send({ status : false , message : "please provide billing pincode address"})}
-                               }
+                    if(data.address.billing.street){ 
+                     findUser.address.billing.street = data.address.billing.street
+                       newAddress.billing.street = data.address.billing.street
+                          if(!validation.isValid(data.address.billing.street)){
+                            return res.status(400).send({ status : false , message : "please provide billing street address"})}
                         }
-                    }
-                    findUser.save()
-                    res.status(200).send({ status: true, message: "updated user", data:findUser })
+
+                    if(data.address.billing.city){ 
+                     findUser.address.billing.city = data.address.billing.city
+                       newAddress.billing.city = data.address.billing.city
+                          if(!validation.isValid(data.address.billing.city)){
+                            return res.status(400).send({ status : false , message : "please provide billing city address"})}
+                        }
+
+                    if(data.address.billing.pincode){ 
+                     findUser.address.billing.pincode = data.address.billing.pincode
+                       newAddress.billing.pincode = data.address.billing.pincode
+                          if(!validation.isValid(data.address.billing.pincode)){
+                            return res.status(400).send({ status : false , message : "please provide billing pincode address"})}
+                }
+            }
+            data.address=newAddress
+        }
+
+        let updateUser = await userModel.findOneAndUpdate({_id: userId}, data ,{new: true})
+        res.status(200).send({ status: true, message: "updated user", data: updateUser })
         
     } catch (err) {
         console.log(err)

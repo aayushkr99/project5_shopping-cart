@@ -56,11 +56,7 @@ const pattern4 =function (value){
     if(test4.test(value) === false) return false
     return true
 } 
-// if (!/^\d{6}$/.test(address.pincode)) {
-//     return res
-//         .status(400)
-//         .send({ status: false, message: 'only number is accepted in pincode ' })
-// }
+
 // let pattern2 = /^(\+91[\-\s]?)?[0]?(91)?[6-9]\d{9}$/                                            // phone
 // let pattern3 = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/        // password
 // let pattern4 = /^(\d{4}|\d{6})$/                                                              // pincode
