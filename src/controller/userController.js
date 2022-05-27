@@ -146,19 +146,16 @@ const updateUser = async function (req, res) {
             }
 
             if (data.lname) {
-
                 if (!validation.isValidString(data.lname)) {return res.status(400).send({ status: false, msg: "Valid last Name is required" })}
             }
 
             if (data.email) {
-
                 if (!validation.pattern1(data.email)) {return res.status(400).send({ status: false, msg: "Valid Email is required" })}
                 let uniqueEmail = await userModel.findOne({ email: data.email });
                 if (uniqueEmail) return res.status(400).send({ status: false, msg: "Email Already Exist" });
             }
 
             if (data.phone) {
-
                 if (!validation.pattern2(data.phone)) {return res.status(400).send({ status: false, msg: "phone is required" })}
                 let uniquePhoneNumber = await userModel.findOne({ phone: data.phone });
                 if (uniquePhoneNumber) return res.status(400).send({ status: false, msg: "phone Number Already Exist" });
@@ -168,7 +165,6 @@ const updateUser = async function (req, res) {
                 if (!validation.pattern3(data.password)) {return res.status(400).send({ status: false, msg: "password is required" })}
                 const hashedPassword = await bcrypt.hash(data.password, 10)
                 data["password"] = hashedPassword;
-            
             }
 
             if( req.files){
@@ -230,11 +226,10 @@ const updateUser = async function (req, res) {
             }
             data.address=newAddress
         }
-
         let updateUser = await userModel.findOneAndUpdate({_id: userId}, data ,{new: true})
         res.status(200).send({ status: true, message: "updated user", data: updateUser })
-        
-    } catch (err) {
+    }
+     catch (err) {
         console.log(err)
         res.status(500).send({ status: false, err: err.message })
     }

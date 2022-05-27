@@ -13,10 +13,14 @@ const isValidString= function (value) {
     if(noNumber.test(value) === false) return false
     return true
 }
+const isValidBoolean = function(value){
+    if(!(typeof value === "boolean")) return false
+    return true
+}
 
 const isValidNumber=  function(n) {
-    if(n > 4 && n< 7)
-    return !isNaN(parseFloat(n));// && isFinite(n);
+    // if(n > 4 && n< 7)
+    return !isNaN(parseFloat(n)) && isFinite(n);
   }
 
 
@@ -61,4 +65,4 @@ const pattern4 =function (value){
 // let pattern3 = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/        // password
 // let pattern4 = /^(\d{4}|\d{6})$/                                                              // pincode
 
-module.exports = { isValid , isValidString, isValidNumber, isValidRequestBody, isValidObjectId , pattern1, pattern2, pattern3, pattern4}
+module.exports = { isValid , isValidString, isValidNumber, isValidRequestBody,isValidBoolean, isValidObjectId , pattern1, pattern2, pattern3, pattern4}
