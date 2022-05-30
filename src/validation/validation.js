@@ -32,6 +32,19 @@ const isValidRequestBody = function (requestbody) {
 const isValidObjectId = function (ObjectId) {
     return mongoose.Types.ObjectId.isValid(ObjectId)
 }
+const isValidStatus = function(value) {
+    return ["pending", "completed", "cancelled"].indexOf(value) !== -1
+}
+const isValidPrice = function(value) {
+    if(!/^[0-9]+$/.test(value.trim())){
+        return false
+    }
+    return true
+}
+const isValidremoveProduct = function(value) {
+    return [0,1].indexOf(value) !== -1
+}
+
 
 const pattern1 =function (value){            
     const test1 = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/ 
@@ -54,15 +67,24 @@ const pattern3 =function (value){
     return true
 } 
 
-const pattern4 =function (value){            
-    const test4 = /^\d{6}$/
-    if (typeof value !== 'string') return false
-    if(test4.test(value) === false) return false
+const pattern4 = function(value) {
+    if(!(/^[1-9]{1}[0-9]{2}[0-9]{3}$/.test(value.trim()))) {
+        return false
+    }
     return true
-} 
+}
+const isvalidCurrencyId = function (currencyId) {
+    return ["INR"].indexOf(currencyId) !== -1
+}
+const isvalidCurrencyFormat = function (currencyFormat) {
+    return ["₹"].indexOf(currencyFormat) !== -1
+}
 
 // let pattern2 = /^(\+91[\-\s]?)?[0]?(91)?[6-9]\d{9}$/                                            // phone
 // let pattern3 = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/        // password
 // let pattern4 = /^(\d{4}|\d{6})$/                                                              // pincode
 
-module.exports = { isValid , isValidString, isValidNumber, isValidRequestBody,isValidBoolean, isValidObjectId , pattern1, pattern2, pattern3, pattern4}
+module.exports = { isValid , isValidString, isValidNumber, isValidRequestBody,isValidBoolean,
+     isValidObjectId ,isValidStatus,isValidPrice, isValidremoveProduct, isValidStatus,pattern1, pattern2, pattern3,
+      pattern4,isvalidCurrencyId,isvalidCurrencyFormat}
+
