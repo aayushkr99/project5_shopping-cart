@@ -11,29 +11,29 @@ const createCart = async function(req,res) {
         // Validate body
         const body = req.body
         if(!validation.isValidRequestBody(body)) {
-            return res.status(400).send({ status: false, msg: "Product details must be present"})
+            return res.status(400).send({ status: false, message: "Product details must be present"})
         }
 
         // Validate query (it must not be present)
         const query = req.query;
         if(validation.isValidRequestBody(query)) {
-            return res.status(400).send({ status: false, msg: "Invalid userId"});
+            return res.status(400).send({ status: false, message: "Invalid parameters"});
         }
 
         // Validate params
         const userId = req.params.userId;
         if(!validation.isValidObjectId(userId)) {
-            return res.status(400).send({ status: false, msg: "Invalid parameters"});
+            return res.status(400).send({ status: false, message: "Invalid userId"});
         }
 
         const userSearch = await userModel.findById({_id: userId})
         if(!userSearch) {
-            return res.status(400).send({status: false, msg: "User does not exist"})
+            return res.status(400).send({status: false, message: "User does not exist"})
         }
 
         // AUTHORISATION
         if(userId !== req.user.userId) {
-            return res.status(401).send({status: false, msg: "Unauthorised access"})
+            return res.status(401).send({status: false, message: "Unauthorised access"})
         }
 
 
@@ -43,33 +43,33 @@ const createCart = async function(req,res) {
         if(!cartExist) {
             // Validate items
             if(!validation.isValid(items)) {
-                return res.status(400).send({status: false, msg: "Items is required"})
+                return res.status(400).send({status: false, message: "Items is required"})
             }
 
             // Validate productId
             if(!validation.isValidObjectId(items[0].productId)) {
-                return res.status(400).send({status: false, msg: "Invalid ProductId"})
+                return res.status(400).send({status: false, message: "Invalid ProductId"})
             }
 
             const product = await ProductModel.findOne({_id:items[0].productId})
             if(!product) {
-                return res.status(400).send({status: false, msg: "No product exist"})
+                return res.status(400).send({status: false, message: "No product exist"})
             }
 
             if(product.isDeleted !== false) {
-                return res.status(400).send({status: false, msg: "Product is not present."})
+                return res.status(400).send({status: false, message: "Product is not present."})
             }
 
             if(!validation.isValid(items[0].quantity)) {
-                return res.status(400).send({status: false, msg: "Quantity is required"})
+                return res.status(400).send({status: false, message: "Quantity is required"})
             }
 
             if(!validation.isValidNumber(items[0].quantity)) {
-                return res.status(400).send({status: false, msg: "Invalid quantity number"})
+                return res.status(400).send({status: false, message: "Invalid quantity number"})
             }
 
             if(items[0].quantity <= 0) {
-                return res.status(400).send({status: false, msg: "Quantity must be in positive number only"})
+                return res.status(400).send({status: false, message: "Quantity must be in positive number only"})
             }
 
             // To count total items present
@@ -80,8 +80,8 @@ const createCart = async function(req,res) {
             const totalPrice = productPrice*items[0].quantity;
 
             const cartData = {userId: userId, items, totalItems, totalPrice}
-            const created = await CartModel.create(cartData)
-            return res.status(201).send({status: true, msg: "Cart created successfully", data: created})
+            const created = await cartModel.create(cartData)
+            return res.status(201).send({status: true, message: "Cart created successfully", data: created})
         }
 
 
@@ -89,11 +89,11 @@ const createCart = async function(req,res) {
         else{
             const addProduct = await ProductModel.findOne({ _id: items[0].productId})
             if(!addProduct) {
-                return res.status(400).send({ status: false, msg: "Product does not exist"})
+                return res.status(400).send({ status: false, message: "Product does not exist"})
             }
 
             if(addProduct.isDeleted !== false) {
-                return res.status(400).send({ status: false, msg: "Product is already deleted"})
+                return res.status(400).send({ status: false, message: "Product is already deleted"})
             }
 
             // To check total price of selected Products
@@ -105,7 +105,7 @@ const createCart = async function(req,res) {
 
                     // To increase product quantity and price
                     const cartData = await cartModel.findOneAndUpdate({ userId: userId}, {items: cartExist.items, totalPrice:totalPrice}, {new:true})
-                    return res.status(201).send({status: true, msg: "Product successfully added", data: cartData})
+                    return res.status(201).send({status: true, message: "Product successfully added", data: cartData})
                 }
             }
 
@@ -118,7 +118,7 @@ const createCart = async function(req,res) {
     }
     catch (err) {
         console.log("This is the error :", err.message)
-        res.status(500).send({ msg: "Error", error: err.message })
+        res.status(500).send({ message: "Error", error: err.message })
     }
 }
 
@@ -135,81 +135,81 @@ const updateCart = async function(req,res) {
         // Validate body
         const body = req.body
         if(!validation.isValidBody(body)) {
-            return res.status(400).send({ status: false, msg: "Product details must be present"})
+            return res.status(400).send({ status: false, message: "Product details must be present"})
         }
 
         // Validate query (it must not be present)
         const query = req.query;
-        if(validation.isValidBody(query)) {
-            return res.status(400).send({ status: false, msg: "Invalid userId"});
+        if(validation.isValidRequestBody(query)) {
+            return res.status(400).send({ status: false, message: "Invalid userId"});
         }
 
         // Validate params
         const userId = req.params.userId;
-        if(!validation.isValidobjectId(userId)) {
-            return res.status(400).send({ status: false, msg: "Invalid parameters"});
+        if(!validation.isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, message: "Invalid parameters"});
         }
 
         // To check user present or not
         const userSearch = await userModel.findById({_id:userId})
         if(!userSearch) {
-            return res.status(400).send({status: false, msg: "userId does not exist"})
+            return res.status(400).send({status: false, message: "userId does not exist"})
         }
 
         // AUTHORISATION
         if(userId !== req.user.userId) {
-            return res.status(401).send({status: false, msg: "Unauthorised access"})
+            return res.status(401).send({status: false, message: "Unauthorised access"})
         }
 
         const {cartId, productId, removeProduct} = body
 
         // Validate cartId
         if(!validation.isValid(cartId)) {
-            return res.status(400).send({status: false, msg: "CartId is required"})
+            return res.status(400).send({status: false, message: "CartId is required"})
         }
 
         // Validation of cartId
         if(!validation.isValidObjectId(cartId)) {
-            return res.status(400).send({status: false, msg: "Invalid cartId"})
+            return res.status(400).send({status: false, message: "Invalid cartId"})
         }
 
         // Validate productId
         if(!validation.isValid(productId)) {
-            return res.status(400).send({status: false, msg: "productId is required"})
+            return res.status(400).send({status: false, message: "productId is required"})
         }
 
         // Validation of productId
         if(!validation.isValidObjectId(productId)) {
-            return res.status(400).send({status: false, msg: "Invalid productId"})
+            return res.status(400).send({status: false, message: "Invalid productId"})
         }
 
         // Validate removeProduct
         if(!validation.isValid(removeProduct)) {
-            return res.status(400).send({status: false, msg: "removeProduct is required"})
+            return res.status(400).send({status: false, message: "removeProduct is required"})
         }
 
 
         //1. Check the cart is present 
         const cartSearch = await cartModel.findOne({_id: cartId})
         if(!cartSearch) {
-            return res.status(404).send({status: false, msg: "Cart does not exist"})
+            return res.status(404).send({status: false, message: "Cart does not exist"})
         }
 
         //2. Check the product is present
         const productSearch = await ProductModel.findOne({ _id: productId})
         if(!productSearch) {
-            return res.status(404).send({status: false, msg: "product does not exist"})
+            return res.status(404).send({status: false, message: "product does not exist"})
         }
         // Check product if it is already deleted(isDeleted == true)
         if(productSearch.isDeleted !== false) {
-            return res.status(400).send({status: false, msg: "Product is already deleted"})
+            return res.status(400).send({status: false, message: "Product is already deleted"})
         }
 
         // 3. Check remove product
 
         // Validation of removeProduct
         if(!validation.isValidremoveProduct(removeProduct)) {
-            return res.status(400).send({status: false, msg: "Invalid remove product"})
+            return res.status(400).send({status: false, message: "Invalid remove product"})
         }
 
         const cart = cartSearch.items
@@ -218,18 +218,18 @@ const updateCart = async function(req,res) {
                 const priceChange = cart[i].quantity * productSearch.price
                 if(removeProduct == 0) {
                     const productRemove = await cartModel.findOneAndUpdate({_id: cartId}, {$pull: {items:{productId: productId}}, totalPrice: cartSearch.totalPrice-priceChange, totalItems: cartSearch.totalItems - 1}, {new:true})
-                    return res.status(200).send({status: true, msg: "Removed product successfully", data: productRemove})
+                    return res.status(200).send({status: true, message: "Removed product successfully", data: productRemove})
                 }
 
                 if(removeProduct == 1) {
                     if(cart[i].quantity == 1 && removeProduct == 1) {
                         const priceUpdate = await cartModel.findOneAndUpdate({_id: cartId}, {$pull: {items: {productId}}, totalPrice:cartSearch.totalPrice-priceChange, totalItems:cartSearch.totalItems - 1}, {new: true})
-                        return res.status(200).send({status: true, msg: "Successfully removed product or cart is empty", data: priceUpdate})
+                        return res.status(200).send({status: true, message: "Successfully removed product or cart is empty", data: priceUpdate})
                     }
 
                     cart[i].quantity = cart[i].quantity - 1
                     const updatedCart = await cartModel.findByIdAndUpdate({_id: cartId}, {items: cart, totalPrice:cartSearch.totalPrice -productSearch.price}, {new: true})
-                    return res.status(200).send({status: true, msg: "sucessfully decremented the product", data: updatedCart})
+                    return res.status(200).send({status: true, message: "sucessfully decremented the product", data: updatedCart})
                 }
             }
         }
@@ -237,7 +237,7 @@ const updateCart = async function(req,res) {
     }
     catch (err) {
         console.log("This is the error :", err.message)
-        res.status(500).send({ msg: "Error", error: err.message })
+        res.status(500).send({ message: "Error", error: err.message })
     }
 }
 
@@ -256,44 +256,44 @@ const getCart = async function(req,res) {
     try{
          // Validate of body(It must not be present)
          const body = req.body;
-         if(validation.isValidOody(body)) {
-             return res.status(400).send({ status: false, msg: "Body must not be present"})
+         if(validation.isValidRequestBody(body)) {
+             return res.status(400).send({ status: false, message: "Body must not be present"})
          }
 
          // Validate query (it must not be present)
         const query = req.query;
-        if(validation.isValidOody(query)) {
-            return res.status(400).send({ status: false, msg: "Query must not be present"});
+        if(validation.isValidRequestBody(query)) {
+            return res.status(400).send({ status: false, message: "Query must not be present"});
         }
 
         // Validate params
         userId = req.params.userId
         if(!validation.isValidObjectId(userId)) {
-            return res.status(400).send({status: false, msg: `${userId} is invalid`})
+            return res.status(400).send({status: false, message: `${userId} is invalid`})
         }
 
         // to check user present or not
         const userSearch = await userModel.findById({_id:userId})
         if(!userSearch) {
-            return res.status(400).send({status: false, msg: "userId does not exist"})
+            return res.status(400).send({status: false, message: "userId does not exist"})
         }
 
         // AUTHORISATION
         if(userId !== req.user.userId) {
-            return res.status(401).send({status: false, msg: "Unauthorised access"})
+            return res.status(401).send({status: false, message: "Unauthorised access"})
         }
 
         // To check cart is present or not
         const cartSearch = await cartModel.findOne({userId})
         if(!cartSearch) {
-            return res.status(400).send({status: true, msg: "UserId does not exist"})
+            return res.status(400).send({status: true, message: "UserId does not exist"})
         }
-        return res.status(200).send({status: true, msg: "Success", data: cartSearch})
+        return res.status(200).send({status: true, message: "Success", data: cartSearch})
 
     }
     catch (err) {
         console.log("This is the error :", err.message)
-        res.status(500).send({ msg: "Error", error: err.message })
+        res.status(500).send({ message: "Error", error: err.message })
     }
 }
 
@@ -310,45 +310,45 @@ const deleteCart = async function(req,res) {
         // Validate body (it must not be present)
         const body = req.body
          if(validation.isValid(body)) {
-            return res.status(400).send({ status: false, msg: "Invalid parametes"})
+            return res.status(400).send({ status: false, message: "Invalid parametes"})
         }
 
         // Validate query (it must not be present)
         const query = req.query;
         if(validation.isValid(query)) {
-            return res.status(400).send({ status: false, msg: "Invalid parameters"});
+            return res.status(400).send({ status: false, message: "Invalid parameters"});
         }
 
          // Validate params
          userId = req.params.userId
          if(!validation.isValidObjectId(userId)) {
-            return res.status(400).send({status: false, msg: `${userId} is invalid`})
+            return res.status(400).send({status: false, message: `${userId} is invalid`})
          }
 
         //  To check user is present or not
         const userSearch = await userModel.findById({ _id: userId})
         if(!userSearch) {
-            return res.status(404).send({status: false, msg: "User doesnot exist"})
+            return res.status(404).send({status: false, message: "User doesnot exist"})
         }
 
         // AUTHORISATION
         if(userId !== req.user.userId) {
-            return res.status(401).send({status: false, msg: "Unauthorised access"})
+            return res.status(401).send({status: false, message: "Unauthorised access"})
         }
 
         // To check cart is present or not
         const cartSearch = await cartModel.findOne({userId})
         if(!cartSearch) {
-            return res.status(404).send({status:false, msg: "cart doesnot exist"})
+            return res.status(404).send({status:false, message: "cart doesnot exist"})
         }
 
         const cartdelete = await cartModel.findOneAndUpdate({userId}, {items:[], totalItems:0, totalPrice:0}, {new: true})
-        res.status(200).send({status: true, msg:"Cart deleted"})
+        res.status(200).send({status: true, message:"Cart deleted"})
 
     }
     catch (err) {
         console.log("This is the error :", err.message)
-        res.status(500).send({ msg: "Error", error: err.message })
+        res.status(500).send({ message: "Error", error: err.message })
     }
 }
 
