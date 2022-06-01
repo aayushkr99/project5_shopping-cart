@@ -203,8 +203,18 @@ const updateProducts = async function(req,res){
             obj['style'] = style;}
         
         if(availableSizes){
-            if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizes) == -1) 
-            return res.status(400).send({ status: false, message: "availableSizes should be S, XS, M, X, L, XXL, XL "})
+            // if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizes) == -1) 
+            // return res.status(400).send({ status: false, message: "availableSizes should be S, XS, M, X, L, XXL, XL "})
+            let sizeEnum = availableSizes.split(",").map(x => x.trim())
+
+            for (let i = 0; i < sizeEnum.length; i++) {
+            if (!(["S", "XS", "M", "X", "L", "XXL", "XL"].includes(sizeEnum[i]))) {
+            return res.status(400).send({status: false, message: `Available Sizes must be ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
+        }
+      }
+        if (!validation.isValidSize(availableSizes)){
+            return res.status(400).send({status:false, message:"Please provide the size in S, XS, M, X, L, XXL, XL "})   //Enum handeling in availableSizes
+    }
             data.availableSizes =  JSON.parse(availableSizes)
             obj['availableSizes'] = availableSizes;}
 

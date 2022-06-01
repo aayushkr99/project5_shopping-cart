@@ -44,8 +44,6 @@ const isValidPrice = function(value) {
 const isValidremoveProduct = function(value) {
     return [0,1].indexOf(value) !== -1
 }
-
-
 const pattern1 =function (value){            
     const test1 = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/ 
     if (typeof value !== 'string') return false
@@ -79,6 +77,10 @@ const isvalidCurrencyId = function (currencyId) {
 const isvalidCurrencyFormat = function (currencyFormat) {
     return ["₹"].indexOf(currencyFormat) !== -1
 }
+const isValidSize = function (input) {
+    return ["S", "XS","M","X", "L","XXL", "XL"].indexOf(input) !== -1;  //enum validation
+};
+
 
 // let pattern2 = /^(\+91[\-\s]?)?[0]?(91)?[6-9]\d{9}$/                                            // phone
 // let pattern3 = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/        // password
@@ -86,5 +88,5 @@ const isvalidCurrencyFormat = function (currencyFormat) {
 
 module.exports = { isValid , isValidString, isValidNumber, isValidRequestBody,isValidBoolean,
      isValidObjectId ,isValidStatus,isValidPrice, isValidremoveProduct, isValidStatus,pattern1, pattern2, pattern3,
-      pattern4,isvalidCurrencyId,isvalidCurrencyFormat}
+      pattern4,isvalidCurrencyId,isvalidCurrencyFormat,isValidSize }
 

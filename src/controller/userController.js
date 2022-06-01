@@ -134,7 +134,7 @@ const updateUser = async function (req, res) {
         let data = req.body
         // let data = JSON.parse(req.body.data)
         let files = req.files
-        if (!(validation.isValidRequestBody(data) || files.length > 0)) { return res.status(400).send({ status: false, msg: "please provide  details" }) }
+        if (!(validation.isValidRequestBody(data))) { return res.status(400).send({ status: false, msg: "please provide details" }) }
 
         const findUser = await userModel.findById({ _id: userId})
         if(!findUser){
@@ -180,21 +180,21 @@ const updateUser = async function (req, res) {
                     if(data.address.shipping){
 
                         if(data.address.shipping.street){ 
-                         findUser.address.shipping.street = data.address.shipping.street
+                        //  findUser.address.shipping.street = data.address.shipping.street
                            newAddress.shipping.street = data.address.shipping.street
                               if(!validation.isValid(data.address.shipping.street)){
                                 return res.status(400).send({ status : false , message : "please provide shipping street address"})}
                             }
 
                         if(data.address.shipping.city){ 
-                         findUser.address.shipping.city = data.address.shipping.city
+                        //  findUser.address.shipping.city = data.address.shipping.city
                            newAddress.shipping.city = data.address.shipping.city
                               if(!validation.isValid(data.address.shipping.city)){
                                 return res.status(400).send({ status : false , message : "please provide shipping city address"})}
                             }
 
                         if(data.address.shipping.pincode){ 
-                         findUser.address.shipping.pincode = data.address.shipping.pincode
+                        //  findUser.address.shipping.pincode = data.address.shipping.pincode
                            newAddress.shipping.pincode = data.address.shipping.pincode
                               if(!validation.isValid(data.address.shipping.pincode)){
                                 return res.status(400).send({ status : false , message : "please provide shipping pincode address"})}
@@ -204,21 +204,21 @@ const updateUser = async function (req, res) {
                 if(data.address.billing){
 
                     if(data.address.billing.street){ 
-                     findUser.address.billing.street = data.address.billing.street
+                    //  findUser.address.billing.street = data.address.billing.street
                        newAddress.billing.street = data.address.billing.street
                           if(!validation.isValid(data.address.billing.street)){
                             return res.status(400).send({ status : false , message : "please provide billing street address"})}
                         }
 
                     if(data.address.billing.city){ 
-                     findUser.address.billing.city = data.address.billing.city
+                    //  findUser.address.billing.city = data.address.billing.city
                        newAddress.billing.city = data.address.billing.city
                           if(!validation.isValid(data.address.billing.city)){
                             return res.status(400).send({ status : false , message : "please provide billing city address"})}
                         }
 
                     if(data.address.billing.pincode){ 
-                     findUser.address.billing.pincode = data.address.billing.pincode
+                    //  findUser.address.billing.pincode = data.address.billing.pincode
                        newAddress.billing.pincode = data.address.billing.pincode
                           if(!validation.isValid(data.address.billing.pincode)){
                             return res.status(400).send({ status : false , message : "please provide billing pincode address"})}
