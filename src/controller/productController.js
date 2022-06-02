@@ -36,9 +36,21 @@ const createProduct = async function(req,res){
             if (!validation.isValid(data.style) ) 
             return res.status(400).send({ status: false, message: "Invalid style format" })
         }
-        if(data.availableSizes)
-        if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(data.availableSizes) == -1) 
-            return res.status(400).send({ status: false, message: "availableSizes should be S, XS, M, X, L, XXL, XL "}) 
+        if (!validation.isValid(data.availableSizes)){
+            return res.status(400).send({status:false, message:"Please provide the availableSizes"})   //availableSizes is mandory
+        }
+
+        let sizeEnum = data.availableSizes.split(",").map(x => x.trim())
+
+        for (let i = 0; i < sizeEnum.length; i++) {
+            if (!(["S", "XS", "M", "X", "L", "XXL", "XL"].includes(sizeEnum[i]))) {
+                return res.status(400).send({status: false, message: `Available Sizes must be ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
+            }
+        }
+        if (!validation.isValidSize(data.availableSizes)){
+            return res.status(400).send({status:false, message:"Please provide the size in S, XS, M, X, L, XXL, XL "})   //Enum handeling in availableSizes
+        }
+
         
         if(data.installments){
             if (!validation.isValidNumber(data.installments)) 
@@ -53,12 +65,13 @@ const createProduct = async function(req,res){
         }    
           
         let files = req.files
-        if (files && files.length <= 0) {return res.status(400).send({status : false , message : "Product Image should be uploaded"})}
+        if (!(files && files.length > 0)) {return res.status(400).send({status : false , message : "productImage is required"})}
             let updatedFileUrl = await aws.uploadFile(files[0])
-            data.productImage = updatedFileUrl
+            data.productImage = updatedFileUrl 
+         
         
         let savedData = await productModel.create(data)
-        res.status(201).send({ status : true, message : "product created successfully" , data : savedData})
+        res.status(201).send({ status : true, message : "Success" , data : savedData})
 
     }
     catch(err){
@@ -152,7 +165,7 @@ const updateProducts = async function(req,res){
 
         let data = req.body
         let files = req.files
-        const { title , description, price ,currencyId ,currencyFormat, isFreeShipping,style,availableSizes,installments} = data
+        const { title , description, price ,currencyId ,currencyFormat,style,availableSizes,installments} = data
         const obj = {}
         const findProduct = await productModel.findById(productId)
 
@@ -190,8 +203,8 @@ const updateProducts = async function(req,res){
         obj['currencyFormat'] = currencyFormat   }
         
 
-        if(isFreeShipping){
-            isFreeShipping = JSON.parse(isFreeShipping)
+        if(data.isFreeShipping){
+            isFreeShipping = JSON.parse(data.isFreeShipping)
             if (!validation.isValidBoolean(isFreeShipping) )
             return res.status(400).send({ status: false, message: "Invalid format of isFreeShipping" })
             // let isFreeShipping = JSON.parse(JSON.stringify(isFreeShipping))
@@ -203,18 +216,9 @@ const updateProducts = async function(req,res){
             obj['style'] = style;}
         
         if(availableSizes){
-            // if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizes) == -1) 
-            // return res.status(400).send({ status: false, message: "availableSizes should be S, XS, M, X, L, XXL, XL "})
-            let sizeEnum = availableSizes.split(",").map(x => x.trim())
-
-            for (let i = 0; i < sizeEnum.length; i++) {
-            if (!(["S", "XS", "M", "X", "L", "XXL", "XL"].includes(sizeEnum[i]))) {
-            return res.status(400).send({status: false, message: `Available Sizes must be ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
-        }
-      }
-        if (!validation.isValidSize(availableSizes)){
-            return res.status(400).send({status:false, message:"Please provide the size in S, XS, M, X, L, XXL, XL "})   //Enum handeling in availableSizes
-    }
+            if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizes) == -1) 
+            return res.status(400).send({ status: false, message: "availableSizes should be S, XS, M, X, L, XXL, XL "})
+   
             data.availableSizes =  JSON.parse(availableSizes)
             obj['availableSizes'] = availableSizes;}
 

@@ -11,9 +11,10 @@ const auth = async function(req,res,next) {
             
             let decodedToken = jwt.verify(token,"Group01")
             if(decodedToken) {
-                req.user = decodedToken
+                req.decodedToken = decodedToken
                 next()
             }
+         
             else{
                 return res.status(400).send({status: false, message: "Token is not valid"})
             }

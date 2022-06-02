@@ -32,9 +32,7 @@ const isValidRequestBody = function (requestbody) {
 const isValidObjectId = function (ObjectId) {
     return mongoose.Types.ObjectId.isValid(ObjectId)
 }
-const isValidStatus = function(value) {
-    return ["pending", "completed", "cancelled"].indexOf(value) !== -1
-}
+
 const isValidPrice = function(value) {
     if(!/^[0-9]+$/.test(value.trim())){
         return false
@@ -66,7 +64,7 @@ const pattern3 =function (value){
 } 
 
 const pattern4 = function(value) {
-    if(!(/^[1-9]{1}[0-9]{2}[0-9]{3}$/.test(value.trim()))) {
+    if(!(/^[1-9][0-9]{5}$/.test(value.trim()))) {
         return false
     }
     return true
@@ -87,6 +85,6 @@ const isValidSize = function (input) {
 // let pattern4 = /^(\d{4}|\d{6})$/                                                              // pincode
 
 module.exports = { isValid , isValidString, isValidNumber, isValidRequestBody,isValidBoolean,
-     isValidObjectId ,isValidStatus,isValidPrice, isValidremoveProduct, isValidStatus,pattern1, pattern2, pattern3,
+     isValidObjectId ,isValidPrice, isValidremoveProduct,pattern1, pattern2, pattern3,
       pattern4,isvalidCurrencyId,isvalidCurrencyFormat,isValidSize }
 

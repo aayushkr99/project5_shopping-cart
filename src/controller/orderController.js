@@ -4,7 +4,7 @@ const userModel = require("../model/userModel.js");
 const validator = require('../validation/validation.js');
 
 
-// -----------createOrder-----------------------------------------------------------------------------------
+
 const createOrder = async function(req, res) {
     try{
         const query = req.query
@@ -14,7 +14,7 @@ const createOrder = async function(req, res) {
         
         const userIdFromParams = req.params.userId
 
-        // const userIdFromToken = req.userId
+        const userIdFromToken = req.userId
 
         if (!validator.isValidObjectId(userIdFromParams)) {
             return res.status(400).send({ status: false, message: "UserId is invalid" });
@@ -32,9 +32,9 @@ const createOrder = async function(req, res) {
         if(!findUser) {
             return res.status(404).send({ status: false, message: "User not found" })
         }
-        // if (userIdFromToken != userIdFromParams) {
-        //     return res.status(403).send({ status: false, message: "Unauthorized access." });
-        // }
+        if (userIdFromToken != userIdFromParams) {
+            return res.status(403).send({ status: false, message: "Unauthorized access." });
+        }
 
         if(!validator.isValid(cartId)) {
             return res.status(400).send({ status: false, message: "Please provide the cartId" })
@@ -42,10 +42,10 @@ const createOrder = async function(req, res) {
         if(!validator.isValidObjectId(cartId)) {
             return res.status(400).send({ status: false, message: "CartId is invalid" })
         }
-        // const searchUser = await userModel.findById({_id : userIdFromParams})
-        // if(!searchUser){
-        //     return res.status(404).send({status : false, message : "User not found"})
-        // }
+        const searchUser = await userModel.findById({_id : userIdFromParams})
+        if(!searchUser){
+            return res.status(404).send({status : false, message : "User not found"})
+        }
         const findCart = await cartModel.findById({_id: cartId})
         if(!findCart) {
             return res.status(404).send({ status: false, message: "Cart not found" })
@@ -83,7 +83,6 @@ const createOrder = async function(req, res) {
             cancellable,
             status
         }
-
         await cartModel.findOneAndUpdate({userId: userIdFromParams}, {$set: {items: [], totalPrice: 0, totalItems: 0} });
 
         let saveOrder = await orderModel.create(newOrder)
@@ -100,7 +99,7 @@ module.exports.createOrder = createOrder
 
 
 
-// -----------updateOrder-----------------------------------------------------------------------------------
+
 const updateOrder = async function(req, res) {
     try{
         const query = req.query

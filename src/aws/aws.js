@@ -1,10 +1,6 @@
 const aws= require("aws-sdk")
 
-// aws.config.update({
-//     accessKeyId: "AKIAY3L35MCRVFM24Q7U",
-//     secretAccessKeyId: "qGG1HE0qRixcW1T1Wg1bv+08tQrIkFVyDFqSft4J",
-//     region: "ap-south-1"
-// })
+
 aws.config.update({
 accessKeyId:"AKIAY3L35MCRUJ6WPO6J",
   secretAccessKey:"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",
@@ -18,7 +14,7 @@ let uploadFile= async ( file) =>{
         ACL: "public-read",
         Bucket: "classroom-training-bucket",  
         Key: "abc/" + file.originalname,  
-        Body: file.buffer
+        Body: file.buffer                    
     }
 
 
