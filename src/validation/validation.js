@@ -42,6 +42,11 @@ const isValidPrice = function(value) {
 const isValidremoveProduct = function(value) {
     return [0,1].indexOf(value) !== -1
 }
+
+const isValidStatus = function(status) {
+    return ['pending', 'completed', 'cancelled'].indexOf(status) !== -1
+};
+
 const pattern1 =function (value){            
     const test1 = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/ 
     if (typeof value !== 'string') return false
@@ -85,6 +90,6 @@ const isValidSize = function (input) {
 // let pattern4 = /^(\d{4}|\d{6})$/                                                              // pincode
 
 module.exports = { isValid , isValidString, isValidNumber, isValidRequestBody,isValidBoolean,
-     isValidObjectId ,isValidPrice, isValidremoveProduct,pattern1, pattern2, pattern3,
+     isValidObjectId ,isValidPrice, isValidremoveProduct,isValidStatus,pattern1, pattern2, pattern3,
       pattern4,isvalidCurrencyId,isvalidCurrencyFormat,isValidSize }
 
