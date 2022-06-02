@@ -2,6 +2,8 @@ const userModel = require('../model/userModel')
 const ProductModel = require('../model/productModel')
 const cartModel = require('../model/cartModel')
 const validation = require('../Validation/validation')
+const jwt = require("jsonwebtoken")
+
 
 
 // ******************************************************** POST /users/:userId/cart ******************************************************* //
@@ -98,7 +100,7 @@ if (findCart) {
             findCart.totalPrice = (findProduct.price * quantity) + findCart.totalPrice
             findCart.totalItems = findCart.items.length
             findCart.save()
-            return res.status(200).send({ status: true, message: `Quantity of ${findCart.items[i].productId} increases`, data: findCart })
+            return res.status(201).send({ status: true, message: `Quantity of ${findCart.items[i].productId} increases`, data: findCart })
         }
     }
 
@@ -150,9 +152,10 @@ const updateCart = async function(req,res) {
         }
 
         // AUTHORISATION
-        // if(userId !== req.user.userId) {
-        //     return res.status(401).send({status: false, message: "Unauthorised access"})
-        // }
+        let userIdFromToken =  req.decodedToken.userId
+        if(userIdFromToken !== userId){
+            return res.status(401).send({status : false , msg : "unauthorized"})
+        }
 
         const {cartId, productId, removeProduct} = body
 
@@ -229,7 +232,7 @@ const updateCart = async function(req,res) {
         
     }
     catch (err) {
-        console.log("This is the error :", err.message)
+        console.log(err)
         res.status(500).send({ message: "Error", error: err.message })
     }
 }
@@ -252,6 +255,8 @@ const getCart = async function(req,res) {
          if(validation.isValidRequestBody(body)) {
              return res.status(400).send({ status: false, message: "Body must not be present"})
          }
+         
+ 
 
          // Validate query (it must not be present)
         const query = req.query;
@@ -272,9 +277,10 @@ const getCart = async function(req,res) {
         }
 
         // AUTHORISATION
-        // if(userId !== req.user.userId) {
-        //     return res.status(401).send({status: false, message: "Unauthorised access"})
-        // }
+        let userIdFromToken =  req.decodedToken.userId
+        if(userIdFromToken !== userId){
+            return res.status(401).send({status : false , msg : "unauthorized"})
+        }
 
         // To check cart is present or not
         const cartSearch = await cartModel.findOne({userId})
@@ -319,9 +325,10 @@ const deleteCart = async function(req,res) {
         }
 
         // AUTHORISATION
-        // if(userId !== req.user.userId) {
-        //     return res.status(401).send({status: false, message: "Unauthorised access"})
-        // }
+        let userIdFromToken =  req.decodedToken.userId
+        if(userIdFromToken !== userId){
+            return res.status(401).send({status : false , msg : "unauthorized"})
+        }
 
         // To check cart is present or not
         const cartSearch = await cartModel.findOne({userId})

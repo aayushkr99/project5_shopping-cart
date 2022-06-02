@@ -22,7 +22,8 @@ const mongoose = require("mongoose")
             trim: true
         },
         profileImage: {
-            type: String
+            type: String,
+            required : true
         },
         phone: {
             type: String,

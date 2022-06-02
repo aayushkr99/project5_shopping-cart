@@ -16,7 +16,7 @@ const createProduct = async function(req,res){
 
         if (!validation.isValid(data.description)) return res.status(400).send({ status: false, message: "Valid description is required" })
 
-        if (!validation.isValidNumber(data.price)) return res.status(400).send({ status: false, message: "Product price is required" })
+        if (!validation.isValidNumber(data.price)) return res.status(400).send({ status: false, message: "Product price should be only number" })
 
         if(data.currencyId){
             if ( data.currencyId !== 'INR'){ 
@@ -94,11 +94,17 @@ const getProducts = async (req, res) => {
             filterQuery['availableSizes'] = size
         }
     
-        if (name) {
-            if (!validation.isValid(name)) return res.status(400).send({ status: false, message: 'name is invalid' })
-            filterQuery['title'] = name
-        }
-    
+        // if (name) {
+        //     if (!validation.isValid(name)) return res.status(400).send({ status: false, message: 'name is invalid' })
+        //     filterQuery['title'] = name
+        // }
+    //    let pattern = { <field>: { $regex: /pattern/<options> } }
+
+       if (name) {
+        if (!validation.isValid(name)) return res.status(400).send({ status: false, message: 'name is invalid' })
+        filterQuery['title'] = name
+    }
+
         if (priceGreaterThan && priceLessThan) {
             console.log("both given");
             filterQuery['price'] = { $gte: priceGreaterThan, $lte: priceLessThan }
@@ -142,9 +148,12 @@ const getProducts = async (req, res) => {
 const getProductById = async (req, res) => {
     try {
         let productId = req.params.productId
+        if(!productId){
+            return res.status(400).send({status : false , msg : "bbuuhhbh"})
+        }
         if (!validation.isValidObjectId(productId)) return res.status(400).send({ status: false, message: "productId is invalid" })
 
-        let findProduct = await productModel.findById(productId)
+        let findProduct = await productModel.findOne({ _id :productId , isDeleted : false})
         if (!findProduct) return res.status(400).send({ status: false, message: "No product exist" })
 
         return res.status(200).send({ status: true, message: "Success", data: findProduct })
@@ -164,7 +173,7 @@ const updateProducts = async function(req,res){
         if (!validation.isValidObjectId(productId)) return res.status(400).send({ status: false, message: "productId is invalid" })
 
         let data = req.body
-        let files = req.files
+   
         const { title , description, price ,currencyId ,currencyFormat,style,availableSizes,installments} = data
         const obj = {}
         const findProduct = await productModel.findById(productId)
@@ -191,7 +200,7 @@ const updateProducts = async function(req,res){
         obj['description'] = description }
 
         if(price){
-        if (!validation.isValidNumber(price)) return res.status(400).send({ status: false, message: "Product price is required" })
+        if (!validation.isValidNumber(price)) return res.status(400).send({ status: false, message: "Product price should be number" })
         obj['price'] = price}
 
         if(currencyId){
@@ -215,22 +224,29 @@ const updateProducts = async function(req,res){
             return res.status(400).send({ status: false, message: "Invalid style format" })
             obj['style'] = style;}
         
-        if(availableSizes){
-            if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizes) == -1) 
-            return res.status(400).send({ status: false, message: "availableSizes should be S, XS, M, X, L, XXL, XL "})
+        // if(availableSizes){
+        //     if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizes) == -1) 
+        //     return res.status(400).send({ status: false, message: "availableSizes should be S, XS, M, X, L, XXL, XL "})
    
-            data.availableSizes =  JSON.parse(availableSizes)
-            obj['availableSizes'] = availableSizes;}
+        //     data.availableSizes =  JSON.parse(availableSizes)
+        //     obj['availableSizes'] = availableSizes;}
 
         if(installments){
             if (!validation.isValidNumber(installments)) 
             return res.status(400).send({ status: false, message: "Please enter valid installments" })
             obj['installments'] = installments; }
         
-        if( files.productImage){
-        let productLink = await aws.uploadFile(files[0]);                       //getting the AWS-S3 link after uploading the user's profileImage
-        obj['productImage'] = productLink;}    
+        // if( files.productImage){
+        // let productLink = await aws.uploadFile(files[0]);                       //getting the AWS-S3 link after uploading the user's profileImage
+        let files = req.files                                                           //getting the AWS-S3 link after uploading the user's profileImage
+        if (files && files.length > 0) {
+            let updatedFileUrl = await aws.uploadFile(files[0])
+            data.profileImage = updatedFileUrl
+            obj['productImage'] = updatedFileUrl;}    
 
+        
+       
+      
         let upCheck = await productModel.findOneAndUpdate({_id : productId } , obj , {new : true})    
         if(!upCheck == null) return res.status(404).send({status : false , message : "Product not found"})
         return res.status(200).send({status : true, message : "Product updated successfully" , data : upCheck})

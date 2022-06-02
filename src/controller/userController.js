@@ -55,11 +55,27 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "please provide Valid billing pincode address" })
         }
 
+
+        // let files = req.files  
+        // if(!validation.isValid(files.profileImage)){
+        //     return res.status(400).send({ status: false, message: "profileImage is required" })
+        
+        // }
+        //    let updatedFileUrl = await aws.uploadFile(files[0])
+        //     data.profileImage = updatedFileUrl
+
         let files = req.files
+        if(!validation.isValid(files.profileImage)){
+                return res.status(400).send({ status: false, message: "profileImage is required" })
+            }
+
+       
         if (files && files.length > 0) {
             let updatedFileUrl = await aws.uploadFile(files[0])
             data.profileImage = updatedFileUrl
         }
+    
+      
         let createData = await userModel.create(data)
         res.status(201).send({ status: true, message: "user created successfully", data: createData })
     }
@@ -109,8 +125,13 @@ const userLogin = async function (req, res) {
 const getUser = async function (req, res) {
     try {
         let userId = req.params.userId
+       
         if (!validation.isValidObjectId(userId)) {
-            return req.status(400).send({ status: false, message: "Invalid UserId" })
+            return res.status(400).send({ status: false, message: "Invalid UserId" })
+        }
+        let userIdFromToken =  req.decodedToken.userId
+        if(userIdFromToken !== userId){
+            return res.status(401).send({status : false , msg : "unauthorized"})
         }
         
         let check = await userModel.findById({ _id: userId })
@@ -140,13 +161,10 @@ const updateUser = async function (req, res) {
             return res.status(404).send({ status: false, message: "User not found" });
           }
 
-        //   let decodedToken= req.decodedToken
-        //   if(userId != decodedToken.userId){
-        //       return res.status(400).send({
-        //           status: false,
-        //           message: "you cannot "
-        //       })
-        //   }
+          let userIdFromToken =  req.decodedToken.userId
+          if(userIdFromToken !== userId){
+              return res.status(401).send({status : false , msg : "unauthorized"})
+          }
             if (data.fname) {
                 if (!validation.isValidString(data.fname)) {
                     return res.status(400).send({ status: false, msg: "Valid First Name is required" })}

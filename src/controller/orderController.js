@@ -158,9 +158,7 @@ const updateOrder = async function(req, res) {
             if(findOrder.status === 'pending'){
                 return res.status(200).send({status:false, message: "Order is already pending."})
             }
-            const findOrderAfterDeletion = await orderModel.findOneAndUpdate({ userId: userIdFromParams },
-                {$set: {items: [], totalPrice: 0, totalItems: 0, totalQuantity : 0, status : 'cancelled' }},{new:true})
-            return res.status(200).send({status: true, message: "Order is cancelled successfully", data: findOrderAfterDeletion})
+           
         }
 
         if(status === 'completed'){
