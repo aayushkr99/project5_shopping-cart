@@ -347,7 +347,7 @@ const deleteCart = async function(req,res) {
 
     }
     catch (err) {
-        console.log("This is the error :", err.message)
+        console.log(err)
         res.status(500).send({ message: "Error", error: err.message })
     }
 }

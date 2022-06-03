@@ -84,6 +84,22 @@ const isValidSize = (sizes) => {
     return ["S", "XS","M","X", "L","XXL", "XL"].includes(sizes);
   }
 
+  
+  const isValidSizes = (size)=> {
+   
+    const validSize = size.split(",").map(x => x.toUpperCase().trim())
+   
+    let givenSizes = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+  
+    for (let i = 0; i < validSize.length; i++) {
+      if (!givenSizes.includes(validSize[i])) {
+        return false
+      }
+    }
+    return validSize
+  }
+  
+
 
 // let pattern2 = /^(\+91[\-\s]?)?[0]?(91)?[6-9]\d{9}$/                                            // phone
 // let pattern3 = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/        // password
@@ -91,5 +107,5 @@ const isValidSize = (sizes) => {
 
 module.exports = { isValid , isValidString, isValidNumber, isValidRequestBody,isValidBoolean,
      isValidObjectId ,isValidPrice, isValidremoveProduct,isValidStatus,pattern1, pattern2, pattern3,
-      pattern4,isvalidCurrencyId,isvalidCurrencyFormat,isValidSize }
+      pattern4,isvalidCurrencyId,isvalidCurrencyFormat,isValidSize ,isValidSizes}
 

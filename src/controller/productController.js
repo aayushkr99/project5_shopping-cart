@@ -52,7 +52,6 @@ const createProduct = async function(req,res){
                  }
              } 
         
-        
         if(data.installments){
             if (!validation.isValidNumber(data.installments)) 
             return res.status(400).send({ status: false, message: "Please enter valid installments" })

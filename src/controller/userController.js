@@ -138,7 +138,7 @@ const getUser = async function (req, res) {
 const updateUser = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!validation.isValidObjectId(userId)) { return req.status(400).send({ status: false, message: "Invalid UserId" }) }
+        if (!validation.isValidObjectId(userId)) { return res.status(400).send({ status: false, message: "Invalid UserId" }) }
 
         let data = req.body
         if (!(validation.isValidRequestBody(data))) { return res.status(400).send({ status: false, msg: "please provide details" }) }

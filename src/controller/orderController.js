@@ -12,29 +12,30 @@ const createOrder = async function(req, res) {
             return res.status(400).send({status: false, message: "Invalid params present in URL"})
         }
         
-        const userIdFromParams = req.params.userId
+        let userId = req.params.userId
 
-        // const userIdFromToken = req.userId
-
-        if (!validation.isValidObjectId(userIdFromParams)) {
+        if (!validation.isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: "UserId is invalid" });
         }
+        //    AUTHORISATION
+         let userIdFromToken =  req.decodedToken.userId
+         if(userIdFromToken !== userId){
+             return res.status(403).send({status : false , msg : "unauthorized"})
+         }
 
         const body = req.body
-        console.log(body.userId)
+        // console.log(body.userId)
         if (Object.keys(body) == 0) {
             return res.status(400).send({status: false,message: "please provide data"})
         }
         
         const {cartId, cancellable, status} = body
 
-        const findUser = await userModel.findById(userIdFromParams)
+        const findUser = await userModel.findById(userId)
         if(!findUser) {
             return res.status(404).send({ status: false, message: "User not found" })
         }
-        // if (userIdFromToken != userIdFromParams) {
-        //     return res.status(403).send({ status: false, message: "Unauthorized access." });
-        // }
+      
 
         if(!validation.isValid(cartId)) {
             return res.status(400).send({ status: false, message: "Please provide the cartId" })
@@ -42,7 +43,7 @@ const createOrder = async function(req, res) {
         if(!validation.isValidObjectId(cartId)) {
             return res.status(400).send({ status: false, message: "CartId is invalid" })
         }
-        const searchUser = await userModel.findById({_id : userIdFromParams})
+        const searchUser = await userModel.findById({_id : userId})
         if(!searchUser){
             return res.status(404).send({status : false, message : "User not found"})
         }
@@ -50,7 +51,7 @@ const createOrder = async function(req, res) {
         if(!findCart) {
             return res.status(404).send({ status: false, message: "Cart not found" })
         }
-        if(findCart.userId.toString() != userIdFromParams){
+        if(findCart.userId.toString() != userId){
             return res.status(400).send({ status: false, message: "With this user cart is not created" });
         }
         if(findCart.items.length === 0) {
@@ -75,7 +76,7 @@ const createOrder = async function(req, res) {
         }
         
         const newOrder = {
-            userId : userIdFromParams,
+            userId : userId,
             items : findCart.items,
             totalPrice : findCart.totalPrice,
             totalItems : findCart.totalItems,
@@ -83,7 +84,7 @@ const createOrder = async function(req, res) {
             cancellable,
             status
         }
-        await cartModel.findOneAndUpdate({userId: userIdFromParams}, {$set: {items: [], totalPrice: 0, totalItems: 0} });
+        await cartModel.findOneAndUpdate({userId: userId}, {$set: {items: [], totalPrice: 0, totalItems: 0} });
 
         let saveOrder = await orderModel.create(newOrder)
         return res.status(201).send({status:true, message:"Success", data:saveOrder})
@@ -109,7 +110,11 @@ const updateOrder = async function(req, res) {
         
         const userIdFromParams = req.params.userId
         
-        // const userIdFromToken = req.userId
+      //    AUTHORISATION
+      let userIdFromToken =  req.decodedToken.userId
+      if(userIdFromToken !== userIdFromParams){
+          return res.status(403).send({status : false , msg : "unauthorized"})
+      }
         
         if (!validation.isValidObjectId(userIdFromParams)) {
             return res.status(400).send({ status: false, message: "UserId is invalid" });
@@ -118,10 +123,7 @@ const updateOrder = async function(req, res) {
         if (!findUser) {
             return res.status(404).send({ status: false, message: 'User not found.' });
         }
-        // if (userIdFromToken != userIdFromParams) {
-        //     return res.status(403).send({ status: false, message: "Unauthorized access." });
-        // }
-        
+       
         let data = req.body
         
         if (!validation.isValidRequestBody(data)){
@@ -150,24 +152,25 @@ const updateOrder = async function(req, res) {
 
         if(status === 'pending'){
             if(findOrder.status === 'completed'){
-                return res.status(200).send({status:false, message: "Order can not be updated to pending. because it is completed."})
+                return res.status(400).send({status:false, message: "Order can not be updated to pending. because it is completed."})
             }
             if(findOrder.status === 'cancelled'){
-                return res.status(200).send({status:false, message: "Order can not be updated to pending. because it is cancelled."})
+                return res.status(400).send({status:false, message: "Order can not be updated to pending. because it is cancelled."})
             }
             if(findOrder.status === 'pending'){
-                return res.status(200).send({status:false, message: "Order is already pending."})
+                return res.status(400).send({status:false, message: "Order is already pending."})
             }
-           
         }
 
         if(status === 'completed'){
             if(findOrder.status === 'cancelled'){
-                return res.status(200).send({status:false, message: "Order can not be updated to completed. because it is cancelled."})
+                return res.status(400).send({status:false, message: "Order can not be updated to completed. because it is cancelled."})
             }
             if(findOrder.status === 'completed'){
-                return res.status(200).send({status:false, message: "Order is already completed."})
+                return res.status(400).send({status:false, message: "Order is already completed."})
             }
+            const orderStatus = await orderModel.findByIdAndUpdate({ _id: orderId}, {$set : { status : "completed"}}, {new : true})
+            return res.status(200).send({status: true, message: "order completed successfully", data: orderStatus})
         }
 
         if(status === 'cancelled'){
@@ -177,10 +180,10 @@ const updateOrder = async function(req, res) {
             if(findOrder.status === 'cancelled'){
                 return res.status(400).send({status:false, message: "Order is already cancelled."})
             }
-            const findOrderAfterDeletion = await orderModel.findOneAndUpdate({ _id: orderId },
-                {$set: {items: [], totalPrice: 0, totalItems: 0, totalQuantity : 0, status : 'cancelled' }},{new:true})
-            return res.status(200).send({status: true, message: "Order is cancelled successfully", data: findOrderAfterDeletion})
+            const orderStatusSecond = await orderModel.findByIdAndUpdate({ _id: orderId}, {$set : { status : "cancelled"}}, {new : true})
+            return res.status(200).send({status: true, message: "order cancelled successfully", data: orderStatusSecond})
         }
+    
     }
     catch(err) {
         console.log(err)

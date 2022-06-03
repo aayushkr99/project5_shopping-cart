@@ -23,8 +23,8 @@ router.put('/users/:userId/cart', middleware.auth ,cartController.updateCart)
 router.get('/users/:userId/cart', middleware.auth ,cartController.getCart)
 router.delete('/users/:userId/cart',middleware.auth ,cartController.deleteCart)
 
-router.post('/users/:userId/orders', orderController.createOrder)
-router.put('/users/:userId/orders', orderController.updateOrder)
+router.post('/users/:userId/orders',middleware.auth , orderController.createOrder)
+router.put('/users/:userId/orders',middleware.auth , orderController.updateOrder)
 
 
 
