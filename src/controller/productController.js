@@ -83,6 +83,9 @@ const createProduct = async function(req,res){
 
 
 
+
+
+
 const getProducts = async (req, res) => {
     try{
         const filterQuery = { isDeleted: false }
@@ -94,8 +97,6 @@ const getProducts = async (req, res) => {
             if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(size) == -1)  return res.status(400).send({ status: false, message: `Size should be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
             filterQuery['availableSizes'] = size
         }
-
-    
 
        if (name) {
         if (!validation.isValid(name)) return res.status(400).send({ status: false, message: 'name is invalid' })
@@ -142,11 +143,12 @@ const getProducts = async (req, res) => {
 
 
 
+
 const getProductById = async (req, res) => {
     try {
         let productId = req.params.productId
         if(!productId){
-            return res.status(400).send({status : false , msg : "bbuuhhbh"})
+            return res.status(400).send({status : false , msg : "Invalid productId"})
         }
         if (!validation.isValidObjectId(productId)) return res.status(400).send({ status: false, message: "productId is invalid" })
 
@@ -259,6 +261,8 @@ const updateProducts = async function(req,res){
         res.status(500).send({status : false , err : err.message})
     }
 }
+
+
 
 
 

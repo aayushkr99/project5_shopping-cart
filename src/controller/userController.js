@@ -118,7 +118,7 @@ const getUser = async function (req, res) {
         }
         let userIdFromToken =  req.decodedToken.userId
         if(userIdFromToken !== userId){
-            return res.status(401).send({status : false , msg : "unauthorized"})
+            return res.status(403).send({status : false , msg : "unauthorized"})
         }
         
         let check = await userModel.findById({ _id: userId })
@@ -150,7 +150,7 @@ const updateUser = async function (req, res) {
 
           let userIdFromToken =  req.decodedToken.userId
           if(userIdFromToken !== userId){
-              return res.status(401).send({status : false , msg : "unauthorized"})
+              return res.status(403).send({status : false , msg : "unauthorized"})
           }
             if (data.fname) {
                 if (!validation.isValidString(data.fname)) {

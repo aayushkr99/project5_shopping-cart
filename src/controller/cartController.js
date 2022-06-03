@@ -20,6 +20,12 @@ if(!validation.isValidRequestBody(data)){
 if(!validation.isValidObjectId(userId)){
     return res.status(400).send({ status: false, message: "UsertId is Not Valid" });
 }
+
+let userIdFromToken =  req.decodedToken.userId
+if(userIdFromToken !== userId){
+    return res.status(403).send({status : false , msg : "unauthorized"})
+}
+
 const findUser = await userModel.findById({ _id: userId})
 
 if(!findUser){
@@ -81,7 +87,7 @@ if(correctCartId._id != cartId){
 }
 
 
-const findCart =await cartModel.findOne({_id:cartId})//.select({items[0][_id] : 0})
+const findCart =await cartModel.findOne({_id:cartId})
 if(!findCart){
     return res.status(404).send({ status: false, message: "Cart not exist with this id so create cart first" });
 }
@@ -154,7 +160,7 @@ const updateCart = async function(req,res) {
         // AUTHORISATION
         let userIdFromToken =  req.decodedToken.userId
         if(userIdFromToken !== userId){
-            return res.status(401).send({status : false , msg : "unauthorized"})
+            return res.status(403).send({status : false , msg : "unauthorized"})
         }
 
         const {cartId, productId, removeProduct} = body
@@ -279,7 +285,7 @@ const getCart = async function(req,res) {
         // AUTHORISATION
         let userIdFromToken =  req.decodedToken.userId
         if(userIdFromToken !== userId){
-            return res.status(401).send({status : false , msg : "unauthorized"})
+            return res.status(403).send({status : false , msg : "unauthorized"})
         }
 
         // To check cart is present or not
