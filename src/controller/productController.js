@@ -36,21 +36,17 @@ const createProduct = async function(req,res){
             if (!validation.isValid(data.style) ) 
             return res.status(400).send({ status: false, message: "Invalid style format" })
         }
-
-
-             if(!(validation.isValid(data.availableSizes))) {
-                return res.status(400).send({status:false, message: "availableSizes required"})
-              }
+            
+    if(data.availableSizes){
     
-            if(!(validation.isValid(data.availableSizes) && validation.isValidString(data.availableSizes)))  return res.status(400).send({ status: false, message: "Enter at least one available size" });
-    
-             data.availableSizes =  JSON.parse(data.availableSizes);
-    
-            for(let i = 0;  i < data.availableSizes.length; i++){
-                 if(!validation.isValidSize(data.availableSizes[i])) {
-            return res.status(400).send({ status: false, message: "Sizes should one of these - 'S', 'XS', 'M', 'X', 'L', 'XXL' and 'XL'" })
-                 }
-             } 
+        if (data.availableSizes) {
+        if (Array.isArray(validation.isValidSizes(data.availableSizes))) {
+            data.availableSizes = validation.isValidSizes(data.availableSizes)
+          } else {
+               return res.status(400).send({ status: false, message: `size should be one these only "S", "XS", "M", "X", "L", "XXL", "XL" ` })
+          }
+      }
+   }
         
         if(data.installments){
             if (!validation.isValidNumber(data.installments)) 
@@ -92,10 +88,15 @@ const getProducts = async (req, res) => {
     
         let { size, name, priceGreaterThan, priceLessThan, priceSort } = queryParams
 
-        if (size) {
-            if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(size) == -1)  return res.status(400).send({ status: false, message: `Size should be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
-            filterQuery['availableSizes'] = size
-        }
+        if(size){
+
+            if (Array.isArray(validation.isValidSizes(size))) {
+                filterQuery.availableSizes = {$in : validation.isValidSizes(size)}
+            } else {
+                return res.status(400).send({ status: false, message: `size should be one these only "S", "XS", "M", "X", "L", "XXL", "XL" ` })
+            }
+        
+    } 
 
        if (name) {
         if (!validation.isValid(name)) return res.status(400).send({ status: false, message: 'name is invalid' })
@@ -222,18 +223,18 @@ const updateProducts = async function(req,res){
             return res.status(400).send({ status: false, message: "Invalid style format" })
             obj['style'] = style;}
         
-            if(availableSizes){ 
-                if(!(validation.isValid(availableSizes) && validation.isValidString(availableSizes)))  return res.status(400).send({ status: false, message: "Enter at least one available size" });
-        
-                data.availableSizes =  JSON.parse(data.availableSizes);
-        
-                for(let i = 0;  i < data.availableSizes.length; i++){
-                    if(!validation.isValidSize(data.availableSizes[i])) {
-                      return res.status(400).send({ status: false, message: "Sizes should one of these - 'S', 'XS', 'M', 'X', 'L', 'XXL' and 'XL'" })
-                    }
-                    obj["availableSizes"]=data.availableSizes
-                } 
-            }   
+           
+     if(req.body.availableSizes){
+
+          if (req.body.availableSizes) {
+             if (Array.isArray(validation.isValidSizes(req.body.availableSizes))) {
+                req.body.availableSizes = validation.isValidSizes(req.body.availableSizes)
+        } else {
+            return res.status(400).send({ status: false, message: `size should be one these only "S", "XS", "M", "X", "L", "XXL", "XL" ` })
+        }
+    }
+       obj["availableSizes"] = availableSizes
+  }
 
         if(installments){
             if (!validation.isValidNumber(installments)) 
