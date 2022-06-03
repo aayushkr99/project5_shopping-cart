@@ -54,28 +54,15 @@ const createUser = async function (req, res) {
         if (!(data.address.billing.pincode  && validation.pattern4(data.address.billing.pincode))) {
             return res.status(400).send({ status: false, message: "please provide Valid billing pincode address" })
         }
-
-
-        // let files = req.files  
-        // if(!validation.isValid(files.profileImage)){
-        //     return res.status(400).send({ status: false, message: "profileImage is required" })
-        
-        // }
-        //    let updatedFileUrl = await aws.uploadFile(files[0])
-        //     data.profileImage = updatedFileUrl
-
+            
         let files = req.files
-        if(!validation.isValid(files.profileImage)){
-                return res.status(400).send({ status: false, message: "profileImage is required" })
-            }
-
-       
+        if(!files.length){
+            return res.status(400).send({ status: false, message: "profileImage is required" }); 
+        }       
         if (files && files.length > 0) {
             let updatedFileUrl = await aws.uploadFile(files[0])
             data.profileImage = updatedFileUrl
-        }
-    
-      
+        }      
         let createData = await userModel.create(data)
         res.status(201).send({ status: true, message: "user created successfully", data: createData })
     }

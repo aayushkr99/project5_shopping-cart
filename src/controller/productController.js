@@ -36,21 +36,22 @@ const createProduct = async function(req,res){
             if (!validation.isValid(data.style) ) 
             return res.status(400).send({ status: false, message: "Invalid style format" })
         }
-        if (!validation.isValid(data.availableSizes)){
-            return res.status(400).send({status:false, message:"Please provide the availableSizes"})   //availableSizes is mandory
-        }
 
-        let sizeEnum = data.availableSizes.split(",").map(x => x.trim())
 
-        for (let i = 0; i < sizeEnum.length; i++) {
-            if (!(["S", "XS", "M", "X", "L", "XXL", "XL"].includes(sizeEnum[i]))) {
-                return res.status(400).send({status: false, message: `Available Sizes must be ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
-            }
-        }
-        if (!validation.isValidSize(data.availableSizes)){
-            return res.status(400).send({status:false, message:"Please provide the size in S, XS, M, X, L, XXL, XL "})   //Enum handeling in availableSizes
-        }
-
+             if(!(validation.isValid(data.availableSizes))) {
+                return res.status(400).send({status:false, message: "availableSizes required"})
+              }
+    
+            if(!(validation.isValid(data.availableSizes) && validation.isValidString(data.availableSizes)))  return res.status(400).send({ status: false, message: "Enter at least one available size" });
+    
+             data.availableSizes =  JSON.parse(data.availableSizes);
+    
+            for(let i = 0;  i < data.availableSizes.length; i++){
+                 if(!validation.isValidSize(data.availableSizes[i])) {
+            return res.status(400).send({ status: false, message: "Sizes should one of these - 'S', 'XS', 'M', 'X', 'L', 'XXL' and 'XL'" })
+                 }
+             } 
+        
         
         if(data.installments){
             if (!validation.isValidNumber(data.installments)) 
@@ -93,12 +94,8 @@ const getProducts = async (req, res) => {
             if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(size) == -1)  return res.status(400).send({ status: false, message: `Size should be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
             filterQuery['availableSizes'] = size
         }
+
     
-        // if (name) {
-        //     if (!validation.isValid(name)) return res.status(400).send({ status: false, message: 'name is invalid' })
-        //     filterQuery['title'] = name
-        // }
-    //    let pattern = { <field>: { $regex: /pattern/<options> } }
 
        if (name) {
         if (!validation.isValid(name)) return res.status(400).send({ status: false, message: 'name is invalid' })
@@ -224,12 +221,18 @@ const updateProducts = async function(req,res){
             return res.status(400).send({ status: false, message: "Invalid style format" })
             obj['style'] = style;}
         
-        // if(availableSizes){
-        //     if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizes) == -1) 
-        //     return res.status(400).send({ status: false, message: "availableSizes should be S, XS, M, X, L, XXL, XL "})
-   
-        //     data.availableSizes =  JSON.parse(availableSizes)
-        //     obj['availableSizes'] = availableSizes;}
+            if(availableSizes){ 
+                if(!(validation.isValid(availableSizes) && validation.isValidString(availableSizes)))  return res.status(400).send({ status: false, message: "Enter at least one available size" });
+        
+                data.availableSizes =  JSON.parse(data.availableSizes);
+        
+                for(let i = 0;  i < data.availableSizes.length; i++){
+                    if(!validation.isValidSize(data.availableSizes[i])) {
+                      return res.status(400).send({ status: false, message: "Sizes should one of these - 'S', 'XS', 'M', 'X', 'L', 'XXL' and 'XL'" })
+                    }
+                    obj["availableSizes"]=data.availableSizes
+                } 
+            }   
 
         if(installments){
             if (!validation.isValidNumber(installments)) 

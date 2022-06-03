@@ -80,9 +80,9 @@ const isvalidCurrencyId = function (currencyId) {
 const isvalidCurrencyFormat = function (currencyFormat) {
     return ["₹"].indexOf(currencyFormat) !== -1
 }
-const isValidSize = function (input) {
-    return ["S", "XS","M","X", "L","XXL", "XL"].indexOf(input) !== -1;  //enum validation
-};
+const isValidSize = (sizes) => {
+    return ["S", "XS","M","X", "L","XXL", "XL"].includes(sizes);
+  }
 
 
 // let pattern2 = /^(\+91[\-\s]?)?[0]?(91)?[6-9]\d{9}$/                                            // phone
